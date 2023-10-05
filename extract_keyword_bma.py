@@ -57,6 +57,7 @@ def search_keywords_in_pdfs(keywords, folder):
         keyword = keyword.lower()
         # Iterate through downloaded PDFs and search for keywords
         for pdf_filename in downloaded_pdf_files:
+            print(f"file: {pdf_filename}")
             pdf_filepath = os.path.join(folder, pdf_filename)
             with open(pdf_filepath, 'rb') as pdf_file:
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
