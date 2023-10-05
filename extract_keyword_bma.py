@@ -53,11 +53,12 @@ def download_linked_pdfs(urls, folder):
 
 # Step 4: Read and Search in Linked PDFs
 def search_keywords_in_pdfs(keywords, folder):
+    results = []  # List to store the search results
     for keyword in keywords:
         keyword = keyword.lower()
         # Iterate through downloaded PDFs and search for keywords
         for pdf_filename in downloaded_pdf_files:
-            print(f"file: {pdf_filename}")
+            print(f"parsing file: {pdf_filename}")
             pdf_filepath = os.path.join(folder, pdf_filename)
             with open(pdf_filepath, 'rb') as pdf_file:
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -65,8 +66,11 @@ def search_keywords_in_pdfs(keywords, folder):
                     page = pdf_reader.pages[page_num]
                     text = page.extract_text().lower()
                     if keyword in text:
-                        print(f"Keyword '{keyword}' found in '{pdf_filename}' on page {page_num + 1}")
-
+                        result = f"Keyword '{keyword}' found in '{pdf_filename}' on page {page_num + 1}"
+                        results.append(result)
+    for result in results:
+        print(result)
+    return results
 
 def get_region_filename(): 
    region_folder = "region_pdfs" 
@@ -94,7 +98,19 @@ def get_region_filename():
    filepath = os.path.join(region_folder, region[region_number -1])  # Adjust the path
    return filepath
 
+def store_results_in_file(results, original_pdf_filename, keyword):
+    # Construct the output filename
+    filename = original_pdf_filename.replace('.pdf', '_')
+    region_name = os.path.splitext(os.path.basename(filename))[0]
+    keywords_str = '_'.join(keyword).replace(' ', '_')
+    output_filename = f"{region_name}_{keywords_str}.txt"
 
+    # Write the results to the file
+    with open(output_filename, 'w') as output_file:
+        for result in results:
+            output_file.write(result + '\n')
+
+            
 # Step 5: Print Information
 if __name__ == "__main__":
 
@@ -107,8 +123,9 @@ if __name__ == "__main__":
         os.makedirs(download_folder)
 
     # Get user input for keywords
-    keywords_input = input("Which keyword(s) do you want to search the BMAs for? (comma-separated): ")
-    keywords_to_search = [keyword.strip().lower() for keyword in keywords_input.split(',')]
+    keywords_input = input("Which keyword do you want to search the BMAs for?: ")
+    # Split the input by commas and take the first keyword
+    keyword_to_search = [keywords_input.strip().lower().split(',')[0]]
 
     # Step 1 and 2: Extract URLs from the original PDF
     extracted_urls = extract_urls_from_pdf(original_pdf_filename)
@@ -122,4 +139,6 @@ if __name__ == "__main__":
     downloaded_pdf_files = [url.split('/')[no_limit] for url in extracted_urls]
 
     # Step 4: Search for keywords in linked PDFs
-    search_keywords_in_pdfs(keywords_to_search, download_folder)
+    results = search_keywords_in_pdfs(keyword_to_search, download_folder)
+    store_results_in_file(results, original_pdf_filename, keyword_to_search)
+
