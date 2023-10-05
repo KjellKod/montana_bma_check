@@ -9,5 +9,5 @@ the search. As an added bonus, you will get all the BMA files downloaded to disk
 example run: 
 ```
 Which region would you like to see shotgun specific BMAs for? (1 - 7): 7
-Which keyword(s) do you want to search the BMAs for? (comma-separated): muzzleloader
+Which keyword do you want to search the BMAs for?: muzzleloader
 ```
