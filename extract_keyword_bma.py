@@ -3,7 +3,7 @@ import re
 import PyPDF2
 import requests
 
-# Step 1: Read the Original PDF. Return all pdf links found in the BMA overview
+# Read the Original PDF. Return all pdf links found in the BMA overview
 def extract_urls_from_pdf(original_pdf_filename):
     urls = []
     annotation_key = '/Annots' #ref https://pypdf2.readthedocs.io/en/3.0.0/user/reading-pdf-annotations.html
@@ -33,7 +33,6 @@ def extract_urls_from_pdf(original_pdf_filename):
 
 
 
-# Step 3: Download Linked PDFs
 def download_linked_pdfs(urls, folder):
     for url in urls:
         #extract the filename from the  URL
@@ -51,7 +50,8 @@ def download_linked_pdfs(urls, folder):
                     pdf_file.write(response.content)
                     print(f"Downloaded: {filename}")
 
-# Step 4: Read and Search in Linked PDFs
+
+
 def search_keywords_in_pdfs(keywords, folder):
     results = []  # List to store the search results
     for keyword in keywords:
@@ -98,6 +98,7 @@ def get_region_filename():
    filepath = os.path.join(region_folder, region[region_number -1])  # Adjust the path
    return filepath
 
+
 def store_results_in_file(results, original_pdf_filename, keyword):
     # Construct the output filename
     filename = original_pdf_filename.replace('.pdf', '_')
@@ -111,7 +112,7 @@ def store_results_in_file(results, original_pdf_filename, keyword):
             output_file.write(result + '\n')
 
             
-# Step 5: Print Information
+
 if __name__ == "__main__":
 
     # Get user input for the region number
