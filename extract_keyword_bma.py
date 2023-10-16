@@ -2,6 +2,16 @@ import os
 import re
 import PyPDF2
 import requests
+from fuzzywuzzy import fuzz
+
+def fuzzy_search(word, text):
+    max_ratio = 0
+    for w in text.split(): 
+        ratio = fuzz.ratio(word.lower(), w.lower())
+        if ratio >= max_ratio:
+            max_ratio = ratio
+    return max_ratio > 85
+
 
 # Read the Original PDF. Return all pdf links found in the BMA overview
 def extract_urls_from_pdf(original_pdf_filename):
@@ -20,7 +30,6 @@ def extract_urls_from_pdf(original_pdf_filename):
                 annotation = page_object[annotation_key]
                 for all_details in annotation: 
                     detail = all_details.get_object()
-
                     if uri in detail[anchor].keys():
                         link = detail[anchor][uri]
                         no_limit = -1
@@ -52,12 +61,12 @@ def download_linked_pdfs(urls, folder):
 
 
 
-def search_keywords_in_pdfs(keywords, folder):
+def search_keywords_in_pdfs(keywords, files, folder):
     results = []  # List to store the search results
     for keyword in keywords:
         keyword = keyword.lower()
         # Iterate through downloaded PDFs and search for keywords
-        for pdf_filename in downloaded_pdf_files:
+        for pdf_filename in files:
             print(f"parsing file: {pdf_filename}")
             pdf_filepath = os.path.join(folder, pdf_filename)
             with open(pdf_filepath, 'rb') as pdf_file:
@@ -65,7 +74,9 @@ def search_keywords_in_pdfs(keywords, folder):
                 for page_num in range(len(pdf_reader.pages)):
                     page = pdf_reader.pages[page_num]
                     text = page.extract_text().lower()
-                    if keyword in text:
+                    # fuzzy search with 85% matching OR 100% matching?
+                    if fuzzy_search(keyword, text):
+                    #if keyword in text:
                         result = f"Keyword '{keyword}' found in '{pdf_filename}' on page {page_num + 1}"
                         results.append(result)
     for result in results:
@@ -140,6 +151,6 @@ if __name__ == "__main__":
     downloaded_pdf_files = [url.split('/')[no_limit] for url in extracted_urls]
 
     # Step 4: Search for keywords in linked PDFs
-    results = search_keywords_in_pdfs(keyword_to_search, download_folder)
+    results = search_keywords_in_pdfs(keyword_to_search, downloaded_pdf_files, download_folder)
     store_results_in_file(results, original_pdf_filename, keyword_to_search)
 

@@ -11,3 +11,8 @@ example run:
 Which region would you like to see shotgun specific BMAs for? (1 - 7): 7
 Which keyword do you want to search the BMAs for?: muzzleloader
 ```
+
+example testing:
+```
+python -m unittest test_extract_keyworkd_bma.py
+```
